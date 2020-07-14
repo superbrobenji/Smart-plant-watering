@@ -9,7 +9,6 @@ lastMeasured = 0
 lastWatered = 0
 water_seconds = 43200
 measure_seconds = 10800
-water_seconds
 
 def readSerial(triggertype):
         ser_bytes = ser.readline()
