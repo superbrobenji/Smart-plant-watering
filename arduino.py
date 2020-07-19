@@ -16,20 +16,22 @@ def readSerial(triggertype):
         print(decoded_bytes)
         getSerial(decoded_bytes, triggertype)
 
-def splitByWord(searchword, decoded_bytes):
+def splitByWord(searchword, decoded_bytes, filename):
         val = 0
         if searchword in decoded_bytes:
-                for word in decoded_bytes.split():
-                        if word.isdigit():
-                                val = float(word)
-        return val                                                                                                                                                                                                                                                                                                                                                                                                                                                                        def getSerial(decoded_bytes, triggertype):                                                                                                                                                                                                       num=0
+            for word in decoded_bytes.split():
+                if word.isdigit():
+                    val = float(word)
+                    writeToFile(filename, val)
+        return val  
+
+def getSerial(decoded_bytes, triggertype):
+    num=0
     writeToFile("full_log.csv", decoded_bytes)
-    num = splitByWord("moisture", decoded_bytes)
-    writeToFile("percentage_log.csv", num)
+    num = splitByWord("moisture", decoded_bytes, "percentage_log.csv")
 
     if triggertype == 2:
-        bool = splitByWord("water", decoded_bytes)
-        writeToFile("last_watered_log.csv", bool)
+        bool = splitByWord("water", decoded_bytes, "last_watered_log.csv")
 
 def writeToFile(filename, data):
         with open(filename,"a") as f:
@@ -54,7 +56,6 @@ def readFromFile(filename, triggertype, loopcount):
                 lastMeasured = float(word)
             elif triggertype == 2:
                 lastWatered = float(word)
-
     else:
         checkWrite(triggertype, loopcount)
 
@@ -71,14 +72,15 @@ def timer(measuredTime, statictime, triggertype, loopcount):
     deltaT = time.time() - measuredTime
     if deltaT >= statictime and measuredTime != 0:
         checkWrite(triggertype, loopcount)
-        #check here if it needs to be watered and then water it here with ser.write(b'1')
-while True:
-        try:
-            readFromFile('./full_log.csv', 1, 5)
-            readFromFile('./last_watered_log.csv', 2, 6)
 
-            timer(lastMeasured, measure_seconds, 1, 5)
-            timer(lastWatered, water_seconds, 2, 6)                                                                                                                                                                                                                                                                                                                                                                                                                                               #except:                                                                                                                                                                                                                                        # print("Keyboard Interrupt")
-        except:
-            print("Keyboard Interrupt")
-            break
+while true:
+    try:
+        readFromFile('./full_log.csv', 1, 5)
+        readFromFile('./last_watered_log.csv', 2, 6)
+
+        timer(lastMeasured, measure_seconds, 1, 5)
+        timer(lastWatered, water_seconds, 2, 6)
+    
+    except:
+        print("Keyboard Interrupt")
+        break
